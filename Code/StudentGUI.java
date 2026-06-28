@@ -16,7 +16,7 @@ public class StudentGUI extends JFrame {
     static Statement  stmt;
 
     // -- Palette ---------------------------------------------------------------
-    private static final Color BG_DARK    = new Color(13,  17,  23);
+    private static final Color BG_DARK    = new Color(3,  17,  23);
     private static final Color BG_PANEL   = new Color(22,  27,  34);
     private static final Color BG_CARD    = new Color(30,  37,  46);
     private static final Color ACCENT     = new Color(56, 189, 248);
@@ -42,14 +42,14 @@ public class StudentGUI extends JFrame {
         "VIEW", "SEARCH", "RENTALS", "RENT", "RETURN"
     };
 
-    // -- Entry point --------------------------------------------------------------
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); }
-            catch (Exception ignored) {}
-            new StudentGUI().setVisible(true);
-        });
-    }
+        // -- Entry point --------------------------------------------------------------
+        public static void main(String[] args) {
+            SwingUtilities.invokeLater(() -> {
+                try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); }
+                catch (Exception ignored) {}
+                new StudentGUI().setVisible(true);
+            });
+        }
 
     // -- Constructor --------------------------------------------------------------
     public StudentGUI() {
