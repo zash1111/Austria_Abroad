@@ -36,7 +36,7 @@ public class TravelAppGUI extends JFrame {
 
     private static final String[] NAV_LABELS = {
         "Currency Conversion", "View Landmarks", "View Transit",
-        "Clendar", "NULL"
+        "Clendar"
     };
     private static final String[] CARD_NAMES = {
         "Conversion", "Map", "Transit", "Calendar", "RETURN"
@@ -47,7 +47,7 @@ public class TravelAppGUI extends JFrame {
         SwingUtilities.invokeLater(() -> {
             try { UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName()); }
             catch (Exception ignored) {}
-            new StudentGUI().setVisible(true);
+            new TravelAppGUI().setVisible(true);
         });
     }
 
@@ -157,9 +157,9 @@ public class TravelAppGUI extends JFrame {
         cardPanel.setBackground(BG_DARK);
 
         cardPanel.add(buildViewPanel(),    CARD_NAMES[0]);
-        //cardPanel.add(buildSearchPanel(),  CARD_NAMES[1]);
-        //cardPanel.add(buildRentalsPanel(), CARD_NAMES[2]);
-        //cardPanel.add(buildRentPanel(),    CARD_NAMES[3]);
+        cardPanel.add(buildSearchPanel(),  CARD_NAMES[1]);
+        cardPanel.add(buildRentalsPanel(), CARD_NAMES[2]);
+        cardPanel.add(buildRentPanel(),    CARD_NAMES[3]);
         //cardPanel.add(buildReturnPanel(),  CARD_NAMES[4]);
 
         return cardPanel;
@@ -213,6 +213,233 @@ public class TravelAppGUI extends JFrame {
             populateTable(table, sql, new String[]{"BikeID","StudentID","StartTime","EndTime"});
             setStatus("Loaded Rentals table", SUCCESS);
         });*/
+        return p;
+    }
+
+    // =========================================================================
+    // CARD 2 – Search Bikes
+    // =========================================================================
+    private JPanel buildSearchPanel() {
+        JPanel p = wrapCard("Search Bikes");
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
+        form.setBorder(new EmptyBorder(0, 0, 16, 0));
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(6, 6, 6, 6);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        String[] labels = {"BikeID", "Type", "Status", "Location", "HourlyRate"};
+        JTextField[] fields = new JTextField[labels.length];
+        for (int i = 0; i < labels.length; i++) {
+            gbc.gridx = 0; gbc.gridy = i;
+            JLabel lbl = new JLabel(labels[i] + ":");
+            lbl.setForeground(TEXT_SEC);
+            lbl.setFont(new Font("Monospaced", Font.PLAIN, 13));
+            form.add(lbl, gbc);
+            gbc.gridx = 1;
+            fields[i] = styledField(260);
+            form.add(fields[i], gbc);
+        }
+
+        JButton searchBtn = styledButton("Search", ACCENT);
+        gbc.gridx = 1; gbc.gridy = labels.length;
+        form.add(searchBtn, gbc);
+
+        JTable table = styledTable();
+        JScrollPane scroll = styledScroll(table);
+
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        top.add(form, BorderLayout.WEST);
+
+        p.add(top,   BorderLayout.NORTH);
+        p.add(scroll, BorderLayout.CENTER);
+
+        searchBtn.addActionListener(e -> {
+            List<String> conds  = new ArrayList<>();
+            List<Object> params = new ArrayList<>();
+            String[] colNames = {"BikeID","Type","Status","Location","HourlyRate"};
+            String[] dbCols   = {"BikeID","Type","Status","Location","HourlyRate"};
+
+            if (!fields[0].getText().trim().isEmpty()) { conds.add("BikeID = ?");                params.add(fields[0].getText().trim()); }
+            if (!fields[1].getText().trim().isEmpty()) { conds.add("UPPER(Type) LIKE UPPER(?)");  params.add("%" + fields[1].getText().trim() + "%"); }
+            if (!fields[2].getText().trim().isEmpty()) { conds.add("UPPER(Status) = UPPER(?)");   params.add(fields[2].getText().trim()); }
+            if (!fields[3].getText().trim().isEmpty()) { conds.add("UPPER(Location) LIKE UPPER(?)"); params.add("%" + fields[3].getText().trim() + "%"); }
+            if (!fields[4].getText().trim().isEmpty()) {
+                try { conds.add("HourlyRate = ?"); params.add(Double.parseDouble(fields[4].getText().trim())); }
+                catch (NumberFormatException ex) { showMsg("Invalid HourlyRate value.", WARNING); return; }
+            }
+
+            String sql = "SELECT BikeID, Type, Status, Location, HourlyRate FROM Bikes";
+            if (!conds.isEmpty()) sql += " WHERE " + String.join(" AND ", conds);
+            sql += " ORDER BY BikeID";
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                for (int i = 0; i < params.size(); i++) {
+                    if (params.get(i) instanceof Double) ps.setDouble(i+1, (Double)params.get(i));
+                    else ps.setString(i+1, (String)params.get(i));
+                }
+                ResultSet rs = ps.executeQuery();
+                DefaultTableModel model = (DefaultTableModel) table.getModel();
+                model.setRowCount(0);
+                model.setColumnIdentifiers(colNames);
+                int count = 0;
+                while (rs.next()) {
+                    model.addRow(new Object[]{
+                        rs.getString("BikeID"), rs.getString("Type"),
+                        rs.getString("Status"), rs.getString("Location"),
+                        String.format("$%.2f", rs.getDouble("HourlyRate"))
+                    });
+                    count++;
+                }
+                rs.close();
+                if (count == 0) showMsg("No matching bikes found.", WARNING);
+                else setStatus(count + " bike(s) found.", SUCCESS);
+            } catch (SQLException ex) { showMsg("Error: " + ex.getMessage(), ERROR); }
+        });
+
+        return p;
+    }
+
+    // =========================================================================
+    // CARD 3 – Active Rentals
+    // =========================================================================
+    private JPanel buildRentalsPanel() {
+        JPanel p = wrapCard("Show Active Rentals");
+
+        JPanel form = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        form.setOpaque(false);
+        form.setBorder(new EmptyBorder(0, 0, 16, 0));
+
+        JComboBox<String> typeCombo = styledCombo(new String[]{"By BikeID", "By Type"});
+        JTextField searchField = styledField(220);
+        JButton goBtn = styledButton("Show", ACCENT);
+
+        form.add(label("Search:"));
+        form.add(typeCombo);
+        form.add(searchField);
+        form.add(goBtn);
+
+        JTable table = styledTable();
+        JScrollPane scroll = styledScroll(table);
+        JLabel countLabel = new JLabel("");
+        countLabel.setForeground(ACCENT2);
+        countLabel.setFont(new Font("Monospaced", Font.BOLD, 13));
+
+        p.add(form,        BorderLayout.NORTH);
+        p.add(scroll,      BorderLayout.CENTER);
+        p.add(countLabel,  BorderLayout.SOUTH);
+
+        goBtn.addActionListener(e -> {
+            String val = searchField.getText().trim();
+            if (val.isEmpty()) { showMsg("Please enter a value.", WARNING); return; }
+            boolean byBikeID = typeCombo.getSelectedIndex() == 0;
+
+            String sql = byBikeID
+                ? "SELECT r.BikeID, r.StudentID, TO_CHAR(r.StartTime,'YYYY-MM-DD HH24:MI:SS') AS StartTime FROM Rentals r WHERE r.BikeID = ? AND r.EndTime IS NULL"
+                : "SELECT r.BikeID, r.StudentID, TO_CHAR(r.StartTime,'YYYY-MM-DD HH24:MI:SS') AS StartTime FROM Rentals r JOIN Bikes b ON r.BikeID = b.BikeID WHERE UPPER(b.Type) = UPPER(?) AND r.EndTime IS NULL ORDER BY r.BikeID";
+
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, val);
+                ResultSet rs = ps.executeQuery();
+                DefaultTableModel model = (DefaultTableModel) table.getModel();
+                model.setRowCount(0);
+                model.setColumnIdentifiers(new String[]{"BikeID","StudentID","StartTime"});
+                List<Object[]> rows = new ArrayList<>();
+                while (rs.next()) rows.add(new Object[]{rs.getString("BikeID"), rs.getString("StudentID"), rs.getString("StartTime")});
+                rs.close();
+
+                if (byBikeID && rows.size() > 1) {
+                    showMsg("Inconsistent data: multiple active rentals for BikeID " + val, ERROR);
+                    return;
+                }
+                if (rows.isEmpty()) { countLabel.setText("  0 active rentals."); setStatus("0 active rentals", WARNING); }
+                else {
+                    for (Object[] row : rows) model.addRow(row);
+                    countLabel.setText("  Total active rentals: " + rows.size());
+                    setStatus(rows.size() + " active rental(s) found.", SUCCESS);
+                }
+            } catch (SQLException ex) { showMsg("Error: " + ex.getMessage(), ERROR); }
+        });
+
+        return p;
+    }
+
+    // =========================================================================
+    // CARD 4 – Rent a Bike
+    // =========================================================================
+    private JPanel buildRentPanel() {
+        JPanel p = wrapCard("Rent a Bike");
+
+        JPanel form = new JPanel(new GridBagLayout());
+        form.setOpaque(false);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 8, 10, 8);
+        gbc.anchor = GridBagConstraints.WEST;
+
+        JTextField bikeField    = styledField(280);
+        JTextField studentField = styledField(280);
+
+        gbc.gridx=0; gbc.gridy=0; form.add(label("BikeID:"),    gbc);
+        gbc.gridx=1;              form.add(bikeField,            gbc);
+        gbc.gridx=0; gbc.gridy=1; form.add(label("StudentID:"), gbc);
+        gbc.gridx=1;              form.add(studentField,         gbc);
+
+        JButton rentBtn = styledButton("Rent Bike", ACCENT2);
+        rentBtn.setPreferredSize(new Dimension(140, 40));
+        gbc.gridx=1; gbc.gridy=2; form.add(rentBtn, gbc);
+
+        JTextArea output = styledTextArea();
+        JScrollPane scroll = styledScroll(output);
+
+        p.add(form,   BorderLayout.NORTH);
+        p.add(scroll, BorderLayout.CENTER);
+
+        rentBtn.addActionListener(e -> {
+            String bikeID    = bikeField.getText().trim();
+            String studentID = studentField.getText().trim();
+            if (bikeID.isEmpty() || studentID.isEmpty()) { showMsg("BikeID and StudentID are required.", WARNING); return; }
+
+            try {
+                // Bike exists?
+                PreparedStatement ps1 = con.prepareStatement("SELECT Status FROM Bikes WHERE BikeID = ?");
+                ps1.setString(1, bikeID);
+                ResultSet rs1 = ps1.executeQuery();
+                if (!rs1.next()) { output.setText("Bike not found."); setStatus("Bike not found.", ERROR); rs1.close(); ps1.close(); return; }
+                String status = rs1.getString("Status");
+                rs1.close(); ps1.close();
+
+                // Available?
+                if (!status.equalsIgnoreCase("Available")) { output.setText("Bike is not available."); setStatus("Bike unavailable.", ERROR); return; }
+
+                // No active rental?
+                PreparedStatement ps2 = con.prepareStatement("SELECT COUNT(*) FROM Rentals WHERE BikeID = ? AND EndTime IS NULL");
+                ps2.setString(1, bikeID);
+                ResultSet rs2 = ps2.executeQuery(); rs2.next();
+                int cnt = rs2.getInt(1); rs2.close(); ps2.close();
+                if (cnt > 0) { output.setText("Bike is not available."); setStatus("Bike already rented.", ERROR); return; }
+
+                // Insert rental
+                PreparedStatement ps3 = con.prepareStatement("INSERT INTO Rentals (BikeID, StudentID, StartTime, EndTime) VALUES (?, ?, CURRENT_TIMESTAMP, NULL)");
+                ps3.setString(1, bikeID); ps3.setString(2, studentID); ps3.executeUpdate(); ps3.close();
+
+                // Update status
+                PreparedStatement ps4 = con.prepareStatement("UPDATE Bikes SET Status = 'Rented' WHERE BikeID = ?");
+                ps4.setString(1, bikeID); ps4.executeUpdate(); ps4.close();
+                con.commit();
+
+                output.setText("Success! Bike " + bikeID + " is now rented by student " + studentID + ".");
+                setStatus("Rental recorded successfully.", SUCCESS);
+                bikeField.setText(""); studentField.setText("");
+
+            } catch (SQLException ex) {
+                output.setText("Error: " + ex.getMessage());
+                setStatus("Error renting bike.", ERROR);
+                try { con.rollback(); } catch (SQLException ignored) {}
+            }
+        });
+
         return p;
     }
 
