@@ -6,7 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.table.*;
+import org.json.JSONObject;
+import java.net.http.*;
+import java.net.URI;
+import java.util.*;
 //import oracle.jdbc.driver.*;
 
 // API KEY FOR LATER USE: AIzaSyDGQA1huoGom8rkzzxVnGostW2HEjxMpgI --------------------
@@ -42,6 +47,10 @@ public class TravelAppGUI extends JFrame {
     };
     private static final String[] CARD_NAMES = {
         "Conversion", "Map", "Transit", "Calendar", "RETURN"
+    };
+
+    private static final String[] CURRANCY = {
+        "WILL", "HOLD", "FUTURE", "CURRENCIES"
     };
 
     // -- Entry point --------------------------------------------------------------
@@ -188,18 +197,20 @@ public class TravelAppGUI extends JFrame {
     }
 
     // =========================================================================
-    // CARD 1 – Currency Conversion
+    // CARD 1 – Currency Conversion   /* https://api.frankfurter.dev/v2/rates */
     // =========================================================================
     private JPanel buildViewPanel() {
         JPanel p = wrapCard("Currancy Conversion");
 
         /*JPanel btnRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         btnRow.setOpaque(false);
-        JButton bikesBtn   = styledButton("Show Bikes",   ACCENT);
-        JButton rentalsBtn = styledButton("Show Rentals", ACCENT2);
+        
         btnRow.add(bikesBtn);
         btnRow.add(rentalsBtn);
         p.add(btnRow, BorderLayout.NORTH);*/
+        
+        JComboBox currSelect1 = styledComboBox("Event Currancy",   ACCENT);
+        JComboBox currSelect2 = styledComboBox("Home Currency", ACCENT2);
 
         JTable table = styledTable();
         JScrollPane scroll = styledScroll(table);
@@ -477,6 +488,63 @@ public class TravelAppGUI extends JFrame {
             public void mouseExited (MouseEvent e) { btn.setBackground(BG_CARD); btn.setForeground(accent); }
         });
         return btn;
+    }
+
+    private JComboBox<String> styledComboBox(String[] items) {
+        JComboBox<String> combo = new JComboBox<>(items) {
+            @Override
+            public void updateUI() {
+                setUI(new BasicComboBoxUI() {
+
+                    // Style the dropdown arrow button
+                    @Override
+                    protected JButton createArrowButton() {
+                        JButton btn = new JButton("▼");
+                        btn.setBackground(BG_CARD);
+                        btn.setForeground(ACCENT);
+                        btn.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+                        btn.setFont(new Font("Monospaced", Font.PLAIN, 10));
+                        btn.setFocusPainted(false);
+                        btn.setContentAreaFilled(false);
+                        return btn;
+                    }
+
+                    // Style the main display area background
+                    @Override
+                    public void paintCurrentValueBackground(Graphics g, Rectangle bounds,
+                                                            boolean hasFocus) {
+                        g.setColor(BG_CARD);
+                        g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height);
+                    }
+                });
+
+                // Style the popup list that drops down
+                setRenderer(new DefaultListCellRenderer() {
+                    @Override
+                    public Component getListCellRendererComponent(JList<?> list,
+                            Object value, int index, boolean isSelected, boolean hasFocus) {
+                        JLabel lbl = (JLabel) super.getListCellRendererComponent(
+                                list, value, index, isSelected, hasFocus);
+                        lbl.setBackground(isSelected ? ACCENT : BG_CARD);
+                        lbl.setForeground(isSelected ? BG_DARK : TEXT_PRI);
+                        lbl.setFont(new Font("Monospaced", Font.PLAIN, 13));
+                        lbl.setBorder(new EmptyBorder(4, 8, 4, 8));
+                        return lbl;
+                    }
+                });
+            }
+        };
+
+        // Style the combo box border and background
+        combo.setBackground(BG_CARD);
+        combo.setForeground(TEXT_PRI);
+        combo.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        combo.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(BORDER_COL),
+            new EmptyBorder(2, 8, 2, 4)
+        ));
+        combo.setFocusable(false);
+        return combo;
     }
 
     private JTextField styledField(int width) {
