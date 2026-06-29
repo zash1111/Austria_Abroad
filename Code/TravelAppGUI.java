@@ -9,6 +9,8 @@ import javax.swing.border.*;
 import javax.swing.table.*;
 //import oracle.jdbc.driver.*;
 
+// API KEY FOR LATER USE: AIzaSyDGQA1huoGom8rkzzxVnGostW2HEjxMpgI --------------------
+
 public class TravelAppGUI extends JFrame {
     
     // -- DB state --------------------------------------------------------------
