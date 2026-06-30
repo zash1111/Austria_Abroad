@@ -14,6 +14,18 @@ import java.net.URI;
 import java.util.*;
 //import oracle.jdbc.driver.*;
 
+
+/// THINGS TO DO HERE
+/// 
+/// INTIGRATE GOOGLE API INTO GUI
+///     integrate and test api to add/rem markers and such
+/// 
+/// CREATE NEW CONVERSION TAB LAYOUT
+///     have drop down for each trip with their event title, price, and conversion
+/// 
+/// HAVE SPACE FOR CALENDAR CODE
+/// 
+
 // API KEY FOR LATER USE: AIzaSyDGQA1huoGom8rkzzxVnGostW2HEjxMpgI --------------------
 
 public class TravelAppGUI extends JFrame {
@@ -209,8 +221,8 @@ public class TravelAppGUI extends JFrame {
         btnRow.add(rentalsBtn);
         p.add(btnRow, BorderLayout.NORTH);*/
         
-        JComboBox currSelect1 = styledComboBox("Event Currancy",   ACCENT);
-        JComboBox currSelect2 = styledComboBox("Home Currency", ACCENT2);
+        //JComboBox currSelect1 = styledComboBox("Event Currancy",   ACCENT);
+        //JComboBox currSelect2 = styledComboBox("Home Currency", ACCENT2);
 
         JTable table = styledTable();
         JScrollPane scroll = styledScroll(table);
