@@ -1,3 +1,4 @@
+package com.travelapp;
 public class Event {
   private String locationName;
   private String address;

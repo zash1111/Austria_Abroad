@@ -1,3 +1,4 @@
+package com.travelapp;
 import java.util.*;
 public class TransitRoute extends Event {
   private final ArrayList<String> transportMethods = new ArrayList<String>("Taxi", "Bus", "Tram", "Train", "Ferry");

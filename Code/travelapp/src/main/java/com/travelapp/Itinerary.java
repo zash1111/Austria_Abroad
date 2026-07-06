@@ -1,3 +1,4 @@
+package com.travelapp;
 import java.util.*;
 public class Itinerary extends Event {
   private ArrayList<Event> events;
