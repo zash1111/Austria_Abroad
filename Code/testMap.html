@@ -34,12 +34,12 @@
             }
 
             function addMarker(lat, lng, title){
-                const mark = new google.map.Marker({
+                const mark = new google.maps.Marker({
                     position: {lat: lat, lng: lng},
                     map: map,
                     title: title
                 });
-                markers.push(marker);
+                markers.push(mark);
 
                 map.panTo({lat: lat, lng: lng});
             }
