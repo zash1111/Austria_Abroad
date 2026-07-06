@@ -1,11 +1,13 @@
 public class Event {
-  private String location;
+  private String locationName;
+  private String address;
   private int[] date = new int[3];
   private int[] time = new int[2];
   private double cost = 0.0;
 
-  public Event(String location, int[] date, int[] time) {
-    this.location = location;
+  public Event(String locationName, String address, int[] date, int[] time) {
+    this.locationName = locationName;
+    this.address = address;
     this.date = date;
     this.time = time;
     this.cost = 0.0;
@@ -23,12 +25,20 @@ public class Event {
     return time;
   }
 
-  public String location() {
-    return location;
+  public String getAddress() {
+    return address;
   }
 
-  public void setLocation(String location) {
-    this.location = location;
+  public String getLocationName() {
+    return locationName;
+  }
+
+  public void setLocationName(String locationName) {
+    this.location = locationName;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
   }
 
   public void setDate(int[] date) {
