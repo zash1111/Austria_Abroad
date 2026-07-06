@@ -3,7 +3,7 @@ public class Itinerary extends Event {
   private ArrayList<Event> events;
   private double cost = 0.0;
 
-  public Itinerary() {
+  public Itinerary() { //FIX THIS SAME PROBLEM AS TRANSITROUTE.JAVA
     this.events = new ArrayList<Event>();
     for (Event e : events) {
       this.cost += e.getCost();

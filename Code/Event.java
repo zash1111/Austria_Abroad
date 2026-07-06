@@ -34,7 +34,7 @@ public class Event {
   }
 
   public void setLocationName(String locationName) {
-    this.location = locationName;
+    this.locationName = locationName; // fixed locationName variable typo(was this.location(<-location variable dosnt exist to i am assuming it was typo) = locationName)
   }
 
   public void setAddress(String address) {

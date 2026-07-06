@@ -1,12 +1,19 @@
 import java.util.*;
 public class TransitRoute extends Event {
   private final ArrayList<String> transportMethods = new ArrayList<String>("Taxi", "Bus", "Tram", "Train", "Ferry");
+  /// on the line above you have to have a sequence of statments
+  /// list.add("whatever") to properly add items to an arraylist
+  /// PROPERLLY IMPLEMNT LIST.ADD("SOMETHING") REPEATEDLY FOR EACH ITEM
   private String transport;
   private Event startPoint;
   private Event destination;
 
-  public TransitRoute(String transport, Event startPoint, Event destination) {
-    if (transportMethods.contains(transport) {
+  public TransitRoute(String transport, Event startPoint, Event destination) { //Fix this here
+    /// you have not specifically referenced the EVent class constructor which  
+    /// this current is extending from so this cunstroctor is defaulting to 
+    /// Event.java cunstroctor without passing anything that was needed
+    /// PROPERLY IMPLEMENT SUPPER(PARAM1, PARAM2, ...)
+    if (transportMethods.contains(transport)) {
       this.transport = transport;
     }
     else {
@@ -29,7 +36,7 @@ public class TransitRoute extends Event {
   }
 
   public void setTransport(String transport) {
-    if (transportMethods.contains(transport) {
+    if (transportMethods.contains(transport)) {
       this.transport = transport;
     }
     else {
