@@ -2,13 +2,11 @@ package com.travelapp;
 import java.util.*;
 public class Itinerary extends Event {
   private ArrayList<Event> events;
-  private double cost = 0.0;
+  private double cost;
 
-  public Itinerary() { //FIX THIS SAME PROBLEM AS TRANSITROUTE.JAVA
+  public Itinerary() {
     this.events = new ArrayList<Event>();
-    for (Event e : events) {
-      this.cost += e.getCost();
-    }
+    this.cost = 0.0;
   }
 
   public Event getLatestEvent() {
