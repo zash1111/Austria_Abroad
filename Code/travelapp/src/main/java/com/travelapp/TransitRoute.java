@@ -1,12 +1,7 @@
 package com.travelapp;
 import java.util.*;
 public class TransitRoute extends Event {
-  private final ArrayList<String> transportMethods = new ArrayList<String>();
-  transportMethods.add("Taxi");
-  transportMethods.add("Bus");
-  transportMethods.add("Tram");
-  transportMethods.add("Train");
-  transportMethods.add("Ferry");
+  private final ArrayList<String> transportMethods = new ArrayList<>(List.of("Taxi", "Bus", "Tram", "Train", "Ferry"));
   private String transport;
   private Event startPoint;
   private Event destination;
