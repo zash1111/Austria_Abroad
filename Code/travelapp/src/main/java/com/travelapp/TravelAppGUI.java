@@ -16,6 +16,15 @@ import java.util.*;
 //import oracle.jdbc.driver.*;
 
 
+// JavaFX imports for WebView integration
+import javafx.application.Platform;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+
+
+
 /// THINGS TO DO HERE
 /// 
 /// INTIGRATE GOOGLE API INTO GUI
@@ -65,6 +74,12 @@ public class TravelAppGUI extends JFrame {
     private static final String[] CURRANCY = {
         "WILL", "HOLD", "FUTURE", "CURRENCIES"
     };
+
+    // -- JavaFX WebView panels ---------------------------------------------------
+    private JFXPanel  mapFXPanel;
+    private WebEngine mapEngine;
+    private JFXPanel  transitFXPanel;
+    private WebEngine transitEngine;
 
     // -- Entry point --------------------------------------------------------------
     public static void main(String[] args) {
@@ -181,7 +196,7 @@ public class TravelAppGUI extends JFrame {
         cardPanel.setBackground(BG_DARK);
 
         cardPanel.add(buildViewPanel(),    CARD_NAMES[0]);
-        cardPanel.add(buildSearchPanel(),  CARD_NAMES[1]);
+        cardPanel.add(buildMapPanel(),  CARD_NAMES[1]);
         cardPanel.add(buildRentalsPanel(), CARD_NAMES[2]);
         cardPanel.add(buildRentPanel(),    CARD_NAMES[3]);
         //cardPanel.add(buildReturnPanel(),  CARD_NAMES[4]);
@@ -243,91 +258,45 @@ public class TravelAppGUI extends JFrame {
     }
 
     // =========================================================================
-    // CARD 2 – Search Bikes
+    // CARD 2 – Map Layout
     // =========================================================================
-    private JPanel buildSearchPanel() {
-        JPanel p = wrapCard("Search Bikes");
+     private JPanel buildMapPanel() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBackground(BG_DARK);
 
-        JPanel form = new JPanel(new GridBagLayout());
-        form.setOpaque(false);
-        form.setBorder(new EmptyBorder(0, 0, 16, 0));
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.anchor = GridBagConstraints.WEST;
+        // Title bar
+        JLabel title = new JLabel("  View Landmarks");
+        title.setFont(new Font("Monospaced", Font.BOLD, 20));
+        title.setForeground(TEXT_PRI);
+        title.setPreferredSize(new Dimension(0, 48));
+        title.setBorder(new EmptyBorder(0, 28, 0, 0));
+        p.add(title, BorderLayout.NORTH);
 
-        String[] labels = {"BikeID", "Type", "Status", "Location", "HourlyRate"};
-        JTextField[] fields = new JTextField[labels.length];
-        for (int i = 0; i < labels.length; i++) {
-            gbc.gridx = 0; gbc.gridy = i;
-            JLabel lbl = new JLabel(labels[i] + ":");
-            lbl.setForeground(TEXT_SEC);
-            lbl.setFont(new Font("Monospaced", Font.PLAIN, 13));
-            form.add(lbl, gbc);
-            gbc.gridx = 1;
-            fields[i] = styledField(260);
-            form.add(fields[i], gbc);
-        }
+        // JFXPanel is a normal Swing component that hosts JavaFX content
+        mapFXPanel = new JFXPanel();
+        p.add(mapFXPanel, BorderLayout.CENTER);
 
-        JButton searchBtn = styledButton("Search", ACCENT);
-        gbc.gridx = 1; gbc.gridy = labels.length;
-        form.add(searchBtn, gbc);
+        // All JavaFX work must happen on the JavaFX thread via Platform.runLater()
+        Platform.runLater(() -> {
+            WebView webView = new WebView();
+            mapEngine = webView.getEngine();
 
-        JTable table = styledTable();
-        JScrollPane scroll = styledScroll(table);
-
-        JPanel top = new JPanel(new BorderLayout());
-        top.setOpaque(false);
-        top.add(form, BorderLayout.WEST);
-
-        p.add(top,   BorderLayout.NORTH);
-        p.add(scroll, BorderLayout.CENTER);
-
-        searchBtn.addActionListener(e -> {
-            List<String> conds  = new ArrayList<>();
-            List<Object> params = new ArrayList<>();
-            String[] colNames = {"BikeID","Type","Status","Location","HourlyRate"};
-            String[] dbCols   = {"BikeID","Type","Status","Location","HourlyRate"};
-
-            if (!fields[0].getText().trim().isEmpty()) { conds.add("BikeID = ?");                params.add(fields[0].getText().trim()); }
-            if (!fields[1].getText().trim().isEmpty()) { conds.add("UPPER(Type) LIKE UPPER(?)");  params.add("%" + fields[1].getText().trim() + "%"); }
-            if (!fields[2].getText().trim().isEmpty()) { conds.add("UPPER(Status) = UPPER(?)");   params.add(fields[2].getText().trim()); }
-            if (!fields[3].getText().trim().isEmpty()) { conds.add("UPPER(Location) LIKE UPPER(?)"); params.add("%" + fields[3].getText().trim() + "%"); }
-            if (!fields[4].getText().trim().isEmpty()) {
-                try { conds.add("HourlyRate = ?"); params.add(Double.parseDouble(fields[4].getText().trim())); }
-                catch (NumberFormatException ex) { showMsg("Invalid HourlyRate value.", WARNING); return; }
+            // Loads testMap.html from src/main/resources/
+            // The leading "/" tells Java to search from the classpath root
+            java.net.URL mapUrl = TravelAppGUI.class.getResource("/testMap.html");
+            if (mapUrl != null) {
+                mapEngine.load(mapUrl.toExternalForm());
+            } else {
+                // Fallback: show an error message in the panel if file not found
+                SwingUtilities.invokeLater(() ->
+                    setStatus("testMap.html not found in resources folder", ERROR));
             }
 
-            String sql = "SELECT BikeID, Type, Status, Location, HourlyRate FROM Bikes";
-            if (!conds.isEmpty()) sql += " WHERE " + String.join(" AND ", conds);
-            sql += " ORDER BY BikeID";
-
-            try (PreparedStatement ps = con.prepareStatement(sql)) {
-                for (int i = 0; i < params.size(); i++) {
-                    if (params.get(i) instanceof Double) ps.setDouble(i+1, (Double)params.get(i));
-                    else ps.setString(i+1, (String)params.get(i));
-                }
-                ResultSet rs = ps.executeQuery();
-                DefaultTableModel model = (DefaultTableModel) table.getModel();
-                model.setRowCount(0);
-                model.setColumnIdentifiers(colNames);
-                int count = 0;
-                while (rs.next()) {
-                    model.addRow(new Object[]{
-                        rs.getString("BikeID"), rs.getString("Type"),
-                        rs.getString("Status"), rs.getString("Location"),
-                        String.format("$%.2f", rs.getDouble("HourlyRate"))
-                    });
-                    count++;
-                }
-                rs.close();
-                if (count == 0) showMsg("No matching bikes found.", WARNING);
-                else setStatus(count + " bike(s) found.", SUCCESS);
-            } catch (SQLException ex) { showMsg("Error: " + ex.getMessage(), ERROR); }
+            mapFXPanel.setScene(new Scene(webView));
         });
 
         return p;
     }
-
     // =========================================================================
     // CARD 3 – Active Rentals
     // =========================================================================
