@@ -1,29 +1,53 @@
 package com.travelapp;
+import java.time;
 public class Event {
+  private static int uID = 0;
+  private int ID;
+  private String tag;
   private String locationName;
   private String address;
-  private int[] date = new int[3];
-  private int[] time = new int[2];
+  private LocalDate startDate;
+  private LocalDate endTime;
+  private LocalTime startTime;
+  private LocalTime endTime;
+  private String currency;
   private double cost = 0.0;
 
-  public Event(String locationName, String address, int[] date, int[] time) {
+  public Event(String tag, String locationName, String address, LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime, String currency) {
+    this.tag = tag;
     this.locationName = locationName;
     this.address = address;
-    this.date = date;
-    this.time = time;
+    this.startDate = startDate;
+    this.endDate = endDate;
+    this.startTime = startTime;
+    this.endTime = endTime;
+    this.currency = currency;
     this.cost = 0.0;
+    ++uID;
+    this.ID = uID;
+  }
+
+  public Event() {
   }
 
   public double getCost() {
     return cost;
   }
 
-  public int[] getDate() {
-    return date;
+  public LocalDate getStartDate() {
+    return startDate;
   }
 
-  public int[] getTime() {
-    return time;
+  public LocalDate getEndDate() {
+    return endDate;
+  }
+
+  public LocalTime getStartTime() {
+    return startTime;
+  }
+
+  public LocalTime getEndTime() {
+    return endTime;
   }
 
   public String getAddress() {
@@ -34,20 +58,52 @@ public class Event {
     return locationName;
   }
 
+  public String getTag() {
+    return tag;
+  }
+
+  public String getID() {
+    return ID;
+  }
+
+  public String getCurrency() {
+    return currency;
+  }
+
   public void setLocationName(String locationName) {
-    this.locationName = locationName; // fixed locationName variable typo(was this.location(<-location variable dosnt exist to i am assuming it was typo) = locationName)
+    this.locationName = locationName;
   }
 
   public void setAddress(String address) {
     this.address = address;
   }
 
-  public void setDate(int[] date) {
-    this.date = date;
+  public void setStartDate(LocalDate startDate) {
+    this.startDate = startDate;
   }
 
-  public void setTime(int[] time) {
-    this.time = time;
+  public void setEndDate(LocalDate endDate) {
+    this.endDate = endDate;
+  }
+
+  public void setStartTime(LocalTime startTime) {
+    this.startTime = startTime;
+  }
+
+  public void setEndTime(LocalTime endTime) {
+    this.endTime = endTime;
+  }
+
+  public void setTag(String tag) {
+    this.tag = tag;
+  }
+
+  public void setID(String ID) {
+    this.ID = ID;
+  }
+
+  public void setCurrency(String currency) {
+    this.currency = currency;
   }
 
 }
