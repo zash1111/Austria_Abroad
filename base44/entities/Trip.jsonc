@@ -1,0 +1,27 @@
+{
+  "name": "Trip",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Name of the trip/calendar"
+    },
+    "color": {
+      "type": "string",
+      "description": "Color hex code for the calendar"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description of the trip"
+    },
+    "default_currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Default currency for this trip"
+    }
+  },
+  "required": [
+    "name",
+    "color"
+  ]
+}

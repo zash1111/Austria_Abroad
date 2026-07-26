@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 40 53% 97%;
+    --foreground: 222 14% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 14% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 14% 15%;
+    --primary: 172 21% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 20% 96%;
+    --secondary-foreground: 222 14% 20%;
+    --muted: 220 20% 96%;
+    --muted-foreground: 220 6% 42%;
+    --accent: 172 24% 93%;
+    --accent-foreground: 172 30% 28%;
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 16% 91%;
+    --input: 220 16% 91%;
+    --ring: 172 21% 53%;
+    --chart-1: 172 21% 53%;
+    --chart-2: 30 70% 60%;
+    --chart-3: 250 30% 70%;
+    --chart-4: 200 60% 60%;
+    --chart-5: 340 50% 65%;
+    --radius: 0.875rem;
+    --font-heading: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-body: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 14% 15%;
+    --sidebar-primary: 172 21% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 172 24% 93%;
+    --sidebar-accent-foreground: 172 30% 28%;
+    --sidebar-border: 220 16% 91%;
+    --sidebar-ring: 172 21% 53%;
+  }
+
+  .dark {
+    --background: 200 20% 8%;
+    --foreground: 40 30% 95%;
+    --card: 200 20% 11%;
+    --card-foreground: 40 30% 95%;
+    --popover: 200 20% 11%;
+    --popover-foreground: 40 30% 95%;
+    --primary: 172 21% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 200 15% 18%;
+    --secondary-foreground: 40 30% 95%;
+    --muted: 200 15% 18%;
+    --muted-foreground: 200 10% 65%;
+    --accent: 200 15% 18%;
+    --accent-foreground: 40 30% 95%;
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 200 15% 20%;
+    --input: 200 15% 20%;
+    --ring: 172 21% 53%;
+    --chart-1: 172 21% 53%;
+    --chart-2: 30 70% 60%;
+    --chart-3: 250 30% 70%;
+    --chart-4: 200 60% 60%;
+    --chart-5: 340 50% 65%;
+    --sidebar-background: 200 20% 11%;
+    --sidebar-foreground: 40 30% 95%;
+    --sidebar-primary: 172 21% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 15% 18%;
+    --sidebar-accent-foreground: 40 30% 95%;
+    --sidebar-border: 200 15% 20%;
+    --sidebar-ring: 172 21% 53%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+}
+
+@layer components {
+  .shadow-soft {
+    box-shadow: 0 4px 16px rgba(109, 159, 152, 0.10), 0 1px 3px rgba(0, 0, 0, 0.04);
+  }
+  .shadow-soft-lg {
+    box-shadow: 0 16px 40px rgba(109, 159, 152, 0.16), 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Leaflet map z-index fix — prevents map from covering dialogs and other UI */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 0 !important;
+}

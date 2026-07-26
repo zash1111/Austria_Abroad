@@ -1,0 +1,96 @@
+{
+  "name": "TripEvent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "Event title"
+    },
+    "trip_id": {
+      "type": "string",
+      "description": "ID of the trip/calendar this event belongs to"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of the event"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "Start time HH:mm"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "End time HH:mm"
+    },
+    "all_day": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this is an all-day event"
+    },
+    "cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Cost of the event in original currency"
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD",
+      "description": "Currency of the cost"
+    },
+    "converted_cost": {
+      "type": "number",
+      "default": 0,
+      "description": "Cost converted to trip default currency"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "food",
+        "transport",
+        "accommodation",
+        "activity",
+        "shopping",
+        "other"
+      ],
+      "default": "other",
+      "description": "Category of expense"
+    },
+    "location": {
+      "type": "string",
+      "description": "Location name of the event"
+    },
+    "address": {
+      "type": "string",
+      "description": "Street address of the event"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Map latitude coordinate"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Map longitude coordinate"
+    },
+    "notes": {
+      "type": "string",
+      "description": "Additional notes"
+    },
+    "recurrence": {
+      "type": "string",
+      "enum": [
+        "none",
+        "daily",
+        "weekly",
+        "monthly"
+      ],
+      "default": "none",
+      "description": "Recurrence pattern"
+    }
+  },
+  "required": [
+    "title",
+    "trip_id",
+    "date"
+  ]
+}
